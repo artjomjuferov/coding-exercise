@@ -12,7 +12,7 @@ class Sequence
 
   def sort
     @jobs.each_with_index do |job, ind|
-      # if job has ticket it was marked
+      # if job has ticket it was visited
       next if job.ticket
       sort_dfs job, ind*@jobs.size
     end
@@ -38,7 +38,9 @@ class Sequence
     # if we during this dfs have visited this edge it's circular
     raise CircularDepError if job.ticket
     job.ticket = true
-    validate_dfs job.dep_job
+    job.dep_jobs.each do |dep_job|
+      validate_dfs dep_job
+    end
     # set nil after ending dfs session
     job.ticket = nil
   end
@@ -46,13 +48,22 @@ class Sequence
 
   def sort_dfs job, ticket
     return unless job
-
     # if it's depended on job it has to have previous ticket
-    if job.dep_job and job.dep_job.ticket
-        job.ticket = job.dep_job.ticket-2
+    dep_ticket = min_ticket job
+    if dep_ticket
+      job.ticket = dep_ticket-2
     end
     job.ticket = ticket
-    sort_dfs job.dep_job, ticket+1
+    job.dep_jobs.each do |dep_job|
+      sort_dfs dep_job, ticket+1
+    end
+  end
+
+  def min_ticket job
+    job.dep_jobs
+        .map(&:ticket)
+        .compact
+        .min
   end
 
 
@@ -60,18 +71,25 @@ class Sequence
     # create jobs without dependencies
     jobs = pre_jobs.map{|pre_job| Job.new pre_job.name }
     jobs.each do |job|
-      # find in pre_jobs dependency job name
-      pre_job = find_job pre_jobs, job.name
-      next if !pre_job or !pre_job.dep_name
-      # find dependency job
-      dep_job = find_job jobs, pre_job.dep_name
-      raise "How it could be ERROR" unless dep_job
-      job.dep_job = dep_job
+      # find in pre_jobs all dependencies for job
+      dep_pre_jobs = find_pre_jobs pre_jobs, job.name
+      dep_pre_jobs.each do |pre_job|
+        # find dependency job
+        dep_job = find_job jobs, pre_job.dep_name
+        raise "How it could be ERROR" unless dep_job
+        job.dep_jobs = dep_job
+      end
     end
   end
 
+  # find only jobs with dependencies
+  def find_pre_jobs pre_jobs, name
+    pre_jobs.select{|job| job.name == name }
+            .select{|job| job.dep_name }
+  end
+
   def find_job jobs, name
-    jobs.find{ |job| job.name == name }
+    jobs.find{|job| job.name == name }
   end
 end
 
