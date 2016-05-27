@@ -7,8 +7,6 @@ class PreJob
     validation
   end
 
-  def to_s; @name; end
-
 
   private
 
@@ -25,7 +23,7 @@ class PreJob
     end
   end
 
-  #can't be depended on itself
+  # can't be depended on itself
   def valid_dependency?
     @name != @dep_name
   end

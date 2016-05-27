@@ -7,7 +7,6 @@ RSpec.describe Parser do
   end
 
   context '#pre_jobs()' do
-
     let(:file_data) { "" }
 
     subject { Parser.new(file_data).pre_jobs }
@@ -62,6 +61,5 @@ RSpec.describe Parser do
         expect(job.name).to eq 'b'
       end
     end
-
   end
 end 

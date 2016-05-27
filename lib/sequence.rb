@@ -2,9 +2,9 @@ require_relative 'job'
 
 class Sequence
 
-  #pre_jobs stores just names not object
+  # pre_jobs stores just names not object
   def initialize pre_jobs
-    #creating graph from pre_jobs
+    # creating graph from pre_jobs
     @jobs = make_jobs pre_jobs
     # validate on circular
     validate_on_circular
@@ -48,8 +48,9 @@ class Sequence
 
   def sort_dfs job, ticket
     return unless job
-    # if it's depended on job it has to have previous ticket
+    # find min ticket from dependencies
     dep_ticket = min_ticket job
+    # if it's depended on job it has to have previous ticket
     if dep_ticket
       job.ticket = dep_ticket-2
     end
@@ -65,7 +66,6 @@ class Sequence
         .compact
         .min
   end
-
 
   def make_jobs pre_jobs
     # create jobs without dependencies

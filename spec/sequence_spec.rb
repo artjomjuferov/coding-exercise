@@ -3,12 +3,11 @@ require './lib/pre_job.rb'
 
 RSpec.describe Sequence do
 
-  let(:pre_jobs) { [PreJob.new('a')]}
-
   context '#make_jobs' do
     subject { Sequence.new(pre_jobs).send(:make_jobs, pre_jobs) }
 
     context 'when job has single dependency' do
+      # it's used in subject above
       let(:pre_jobs) { [PreJob.new('a', 'b'), PreJob.new('b')]}
 
       it { is_expected.to be_an Array}
@@ -32,6 +31,7 @@ RSpec.describe Sequence do
     end
 
     context 'when job has many dependencies' do
+      # it's used in subject above
       let(:pre_jobs) {
         [
           PreJob.new('a', 'b'),
@@ -74,6 +74,7 @@ RSpec.describe Sequence do
     subject { Sequence.new([]).send :min_ticket, job }
 
     context 'when dep_ticket is nil' do
+      # it's used in subject above
       let(:job) do
         dep_job = Job.new 'b'
         Job.new 'a', dep_job
@@ -82,14 +83,17 @@ RSpec.describe Sequence do
       it { is_expected.to be_nil }
     end
 
-    context 'when dep_tickets are not nil' do
+    context 'when many dependencies and tickets are not nil' do
+      # it's used in subject above
       let(:job) do
         job = Job.new 'a'
+        # create and assign first dependency
         dep_job1 = Job.new 'b'
         dep_job1.ticket = 1
+        job.dep_jobs = dep_job1
+        # create and assign second dependency
         dep_job2 = Job.new 'c'
         dep_job2.ticket = 2
-        job.dep_jobs = dep_job1
         job.dep_jobs = dep_job2
         job
       end
@@ -100,13 +104,17 @@ RSpec.describe Sequence do
   end
 
   context "#to_s" do
+    let(:pre_jobs) { [PreJob.new('a'), PreJob.new('b')]}
+
     subject { Sequence.new(pre_jobs).to_s }
 
-    it { is_expected.to eq 'a' }
+    it { is_expected.to eq 'ab' }
   end
 
   context 'when there is circular error' do
-    in_out = [
+    # first char is job_name
+    # other chars is dependency name
+    inputs = [
         %w(ab ba),
         %w(abc b ca),
         %w(ab bc cd da),
@@ -115,7 +123,7 @@ RSpec.describe Sequence do
         %w(a bce cf da e fb)
     ]
 
-    in_out.each do |input|
+    inputs.each do |input|
       it 'raises error' do
         expect{ Sequence.new make_pre_jobs(input) }.to raise_error CircularDepError
       end
@@ -123,7 +131,8 @@ RSpec.describe Sequence do
   end
 
   context '#sort' do
-    # more readable input
+    # first char is job_name
+    # other chars is dependency name
     inputs = [
         %w(a),
         %w(a b c),
@@ -142,16 +151,7 @@ RSpec.describe Sequence do
           seq.sort
           # for checking select only with dependencies
           dep_inputs = input.select{|x| x.size > 2}
-          # p seq.to_s
-          dep_inputs.each do |jobs|
-            job_ind = seq.to_s.index jobs[0]
-            # check all dependencies
-            jobs[1..-1].chars.each do |job_name|
-              dep_ind = seq.to_s.index job_name
-              # job has to be after its dependency
-              expect(job_ind).to be > dep_ind
-            end
-          end
+          dep_inputs.each {|jobs| check_jobs seq, jobs }
         end
       end
     end
@@ -160,18 +160,31 @@ RSpec.describe Sequence do
 
   private
 
+  def check_jobs seq, jobs
+    # get sequence result
+    sequence = seq.to_s
+    # find job index
+    job_ind = sequence.index jobs[0]
+    # check all dependencies
+    jobs[1..-1].chars.each do |job_name|
+      # find dependency index
+      dep_ind = sequence.index job_name
+      # job has to be after its dependency
+      expect(job_ind).to be > dep_ind
+    end
+  end
+
   def make_pre_jobs input
     input.flat_map do |chars|
       # first is name
       name = chars[0]
-      if chars.size > 1
-        # other is dependency
+      # if it does not has dependencies create just PreJob
+      if chars.size == 1
+        PreJob.new(name)
+      else
         chars[1..-1].chars.map do |dep_name|
           PreJob.new name, dep_name
         end
-      else
-        # if it does not has dependencies create PreJob without it
-        PreJob.new name
       end
     end
   end
