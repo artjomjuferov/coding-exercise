@@ -1,0 +1,3 @@
+# coding-exercise
+
+Usage: ruby app.rb file1.in file2.in ...
