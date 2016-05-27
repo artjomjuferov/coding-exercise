@@ -1,6 +1,7 @@
 require './lib/pre_job.rb'
 
 RSpec.describe PreJob do
+  let(:name){ "a" }
   let(:dep_name) { nil }
 
   subject { PreJob.new name, dep_name }
@@ -17,14 +18,11 @@ RSpec.describe PreJob do
     end
 
     context 'when correct name' do
-      let(:name){ "a" }
-
       it 'does not raise error' do
         expect{ subject }.not_to raise_error
       end
 
       it { is_expected.to respond_to :name, :dep_name}
-      # it { is_expected.to respond_ro :dep_name}
 
       it 'has name eq "a"' do
         expect(subject.name).to eq 'a'
@@ -37,7 +35,6 @@ RSpec.describe PreJob do
   end
 
   context 'when dependency name is provided' do
-    let(:name){ "a" }
 
     context 'when dependency name is the same' do
       let(:dep_name) { "a" }
