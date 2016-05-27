@@ -24,10 +24,10 @@ class Parser
 
   def create_pre_jobs lines
     lines.map do |line|
-      # we should raise error if line does not match our rules
+      # we should raise error if line does not match our rule
       raise LineError.new line unless valid_line? line
-      name, dependency = line.split('=>')
-      PreJob.new name, dependency
+      name, dep_name = line.split('=>')
+      PreJob.new name, dep_name
     end
   end
 
