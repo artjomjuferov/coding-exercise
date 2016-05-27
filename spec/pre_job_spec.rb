@@ -1,7 +1,9 @@
 require './lib/pre_job.rb'
 
 RSpec.describe PreJob do
+
   let(:name){ "a" }
+
   let(:dep_name) { nil }
 
   subject { PreJob.new name, dep_name }
@@ -35,7 +37,6 @@ RSpec.describe PreJob do
   end
 
   context 'when dependency name is provided' do
-
     context 'when dependency name is the same' do
       let(:dep_name) { "a" }
 
