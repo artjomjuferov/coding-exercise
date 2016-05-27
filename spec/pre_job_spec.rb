@@ -35,4 +35,42 @@ RSpec.describe PreJob do
       end
     end
   end
+
+  context 'when dependency name is provided' do
+    let(:name){ "a" }
+
+    context 'when dependency name is the same' do
+      let(:dep_name) { "a" }
+
+      it 'raises error' do
+        expect{ subject }.to raise_error PreJobDepError
+      end
+    end
+
+    context 'when dependency name is not correct' do
+      %w(A я 1 + .).each do |wrong_name|
+        let(:dep_name){ wrong_name }
+
+        it 'raises error' do
+          expect{ subject }.to raise_error PreJobNameError
+        end
+      end
+    end
+
+    context 'when dependency name is correct' do
+      let(:dep_name){ "b" }
+
+      it 'does not raise error' do
+        expect{ subject }.not_to raise_error
+      end
+
+      it 'has name eq "a"' do
+        expect(subject.name).to eq 'a'
+      end
+
+      it 'has dependency name eq "b"' do
+        expect(subject.dep_name).to eq 'b'
+      end
+    end
+  end
 end

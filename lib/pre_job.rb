@@ -16,7 +16,7 @@ class PreJob
   def validation
     validate_name @name
     validate_name @dep_name if @dep_name
-    raise PreJobDepError unless valid_dependency?
+    raise PreJobDepError, @name unless valid_dependency?
   end
 
   def validate_name name
