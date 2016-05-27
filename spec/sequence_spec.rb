@@ -40,11 +40,13 @@ RSpec.describe Sequence do
 
   context '#sort' do
     context 'when without errors' do
+      # more readable input
       inputs = [
           %w(a),
           %w(a b c),
           %w(a bc c),
-          %w(a bc cf da eb f)
+          %w(a bc cf da eb f),
+          %w(ab be ed df k lk ml fm),
       ]
 
       inputs.each do |input|
@@ -55,10 +57,11 @@ RSpec.describe Sequence do
             seq.sort
             # for checkin select only dependencies
             dep_inputs = input.select{|x| x.size == 2}
+            # p seq.to_s
             dep_inputs.each do |jobs|
               job_ind = seq.to_s.index jobs[0]
               dep_ind = seq.to_s.index jobs[1]
-              # job index has to be after
+              # job has to be after its dependency
               expect(job_ind).to be > dep_ind
             end
           end
@@ -68,7 +71,9 @@ RSpec.describe Sequence do
 
     context 'when there is circular error' do
       in_out = [
-          %w(a bc cf da e fb)
+          %w(a bc cf da e fb),
+          %w(ab bc cd da),
+          %w(ab ba)
       ]
 
       in_out.each do |input|
