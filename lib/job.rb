@@ -1,6 +1,6 @@
 class Job
-  attr_reader :name, :dep_job
-  attr_accessor :ticket
+  attr_reader :name
+  attr_accessor :ticket, :dep_job
 
   def initialize name, dep_job=nil
     @name = name
