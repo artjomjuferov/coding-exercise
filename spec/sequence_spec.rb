@@ -1,74 +1,9 @@
 require './lib/sequence.rb'
 require './lib/pre_job.rb'
+require './lib/job_maker.rb'
+require './lib/job.rb'
 
 RSpec.describe Sequence do
-
-  context '#make_jobs' do
-    subject { Sequence.new(pre_jobs).send(:make_jobs, pre_jobs) }
-
-    context 'when job has single dependency' do
-      # it's used in subject above
-      let(:pre_jobs) { [PreJob.new('a', 'b'), PreJob.new('b')]}
-
-      it { is_expected.to be_an Array}
-
-      it 'returns array of jobs' do
-        arr = subject
-        arr.each do |job|
-          expect(job).to be_a Job
-        end
-      end
-
-      it 'returns array with Job "a"' do
-        job_a = subject[0]
-        expect(job_a.name).to eq 'a'
-      end
-
-      it 'returns array with Job "a" depended on "b"' do
-        job_a = subject[0]
-        expect(job_a.dep_jobs[0].name).to eq 'b'
-      end
-    end
-
-    context 'when job has many dependencies' do
-      # it's used in subject above
-      let(:pre_jobs) {
-        [
-          PreJob.new('a', 'b'),
-          PreJob.new('a', 'c'),
-          PreJob.new('b'),
-          PreJob.new('c')
-        ]
-      }
-
-      context 'when everything is correct' do
-        it { is_expected.to be_an Array}
-
-        it 'returns array of jobs' do
-          arr = subject
-          arr.each do |job|
-            expect(job).to be_a Job
-          end
-        end
-
-        it 'returns array with Job "a"' do
-          job_a = subject[0]
-          expect(job_a.name).to eq 'a'
-        end
-
-        it 'returns array with Job "a" depended on "b"' do
-          job_a = subject[0]
-          expect(job_a.dep_jobs[0].name).to eq 'b'
-        end
-
-        it 'returns array with Job "a" depended on "c"' do
-          job_a = subject[0]
-          expect(job_a.dep_jobs[1].name).to eq 'c'
-        end
-      end
-    end
-  end
-
 
   context '#min_ticket' do
     subject { Sequence.new([]).send :min_ticket, job }
@@ -104,9 +39,9 @@ RSpec.describe Sequence do
   end
 
   context "#to_s" do
-    let(:pre_jobs) { [PreJob.new('a'), PreJob.new('b')]}
+    let(:jobs) { [Job.new('a'), Job.new('b')]}
 
-    subject { Sequence.new(pre_jobs).to_s }
+    subject { Sequence.new(jobs).to_s }
 
     it { is_expected.to eq 'ab' }
   end
@@ -125,7 +60,7 @@ RSpec.describe Sequence do
 
     inputs.each do |input|
       it 'raises error' do
-        expect{ Sequence.new make_pre_jobs(input) }.to raise_error CircularDepError
+        expect{ Sequence.new make_jobs(input) }.to raise_error CircularDepError
       end
     end
   end
@@ -143,15 +78,16 @@ RSpec.describe Sequence do
     ]
 
     inputs.each do |input|
+      # input is array of jobs
       context "when input = #{input}" do
         it 'returns right value' do
-          # create from input pre_jobs
-          pre_jobs = make_pre_jobs input
-          seq = Sequence.new pre_jobs
+          # create from input jobs
+          jobs = make_jobs input
+          seq = Sequence.new jobs
           seq.sort
           # for checking select only with dependencies
-          dep_inputs = input.select{|x| x.size > 2}
-          dep_inputs.each {|jobs| check_jobs seq, jobs }
+          dep_inputs = input.select{|x| x.size >= 2}
+          dep_inputs.each {|chars_jobs| check_jobs seq, chars_jobs }
         end
       end
     end
@@ -174,8 +110,8 @@ RSpec.describe Sequence do
     end
   end
 
-  def make_pre_jobs input
-    input.flat_map do |chars|
+  def make_jobs input
+    pre_jobs = input.flat_map do |chars|
       # first is name
       name = chars[0]
       # if it does not has dependencies create just PreJob
@@ -187,5 +123,6 @@ RSpec.describe Sequence do
         end
       end
     end
+    JobMaker.new(pre_jobs).call
   end
 end
