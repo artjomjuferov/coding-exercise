@@ -1,4 +1,5 @@
 require './lib/job_maker.rb'
+require './lib/pre_job.rb'
 
 
 RSpec.describe JobMaker do
@@ -49,6 +50,10 @@ RSpec.describe JobMaker do
           arr.each do |job|
             expect(job).to be_a Job
           end
+        end
+
+        it 'returns array of size 3' do
+          expect(subject.size).to eq 3
         end
 
         it 'returns array with Job "a"' do
