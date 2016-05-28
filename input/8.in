@@ -1,0 +1,10 @@
+a => b
+a => c
+a => e
+b => e
+c => f
+c => d
+d => g
+e => g
+f => g
+g =>

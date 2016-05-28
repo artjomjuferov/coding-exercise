@@ -74,20 +74,31 @@ RSpec.describe Sequence do
         %w(a bc c),
         %w(abc bc c),
         %w(a bc cf da eb f),
-        %w(ab be ed df k lk ml fm)
+        %w(ab be ed df k lk ml fm),
+        %w(acbe be eg cf cd fg dg dg g)
     ]
 
     inputs.each do |input|
       # input is array of jobs
       context "when input = #{input}" do
-        it 'returns right value' do
-          # create from input jobs
+        let(:sequence) do
           jobs = make_jobs input
           seq = Sequence.new jobs
           seq.sort
+          seq.to_s
+        end
+
+        it 'has right size' do
+          # get only uniq chars
+          # first join, then make array of chars, then uniq and join
+          uniq_chars = input.join.chars.uniq.join
+          expect(sequence.size).to eq uniq_chars.size
+        end
+
+        it 'returns right value' do
           # for checking select only with dependencies
           dep_inputs = input.select{|x| x.size >= 2}
-          dep_inputs.each {|chars_jobs| check_jobs seq, chars_jobs }
+          dep_inputs.each {|chars_jobs| check_jobs sequence, chars_jobs }
         end
       end
     end
@@ -96,9 +107,7 @@ RSpec.describe Sequence do
 
   private
 
-  def check_jobs seq, jobs
-    # get sequence result
-    sequence = seq.to_s
+  def check_jobs sequence, jobs
     # find job index
     job_ind = sequence.index jobs[0]
     # check all dependencies
@@ -111,7 +120,7 @@ RSpec.describe Sequence do
   end
 
   def make_jobs input
-    pre_jobs = input.flat_map do |chars|
+     pre_jobs = input.flat_map do |chars|
       # first is name
       name = chars[0]
       # if it does not has dependencies create just PreJob
