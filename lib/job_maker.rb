@@ -35,7 +35,7 @@ class JobMaker
   def add_dependency job, pre_job
     # find dependency job
     dep_job = find_job pre_job.dep_name
-    raise "How it could be ERROR" unless dep_job
+    raise "INPUT_ERROR: wrong input" unless dep_job
     job.dep_jobs = dep_job
   end
 

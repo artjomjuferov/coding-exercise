@@ -12,14 +12,8 @@ class PreJob
 
   # simple validations
   def validation
-    validate_name @name
-    validate_name @dep_name if @dep_name
-    raise PreJobDepError, @name unless valid_dependency?
-  end
-
-  def validate_name name
-    unless ('a'..'z').include? name
-      raise PreJobNameError, name
+    unless valid_dependency?
+      raise PreJobDepError, @name
     end
   end
 
@@ -30,14 +24,8 @@ class PreJob
 end
 
 
-class PreJobNameError < StandardError
-  def initialize wrong_name
-    super "'#{wrong_name}' is wrong, only a-z available"
-  end
-end
-
 class PreJobDepError < StandardError
   def initialize name
-    super "'#{name}' can't depend on itself"
+    super "ERROR: '#{name}' can't depend on itself"
   end
 end

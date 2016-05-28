@@ -39,7 +39,7 @@ end
 
 class LineError < StandardError
   def initialize line
-    msg = "'#{line}' - does not match pattern"
+    msg = "'#{line}' - does not match input pattern"
     super msg
   end
 end

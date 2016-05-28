@@ -9,16 +9,6 @@ RSpec.describe PreJob do
   subject { PreJob.new name, dep_name }
 
   context 'when dependency name is not provided' do
-    context 'when wrong name' do
-      %w(A я 1 + .).each do |wrong_name|
-        let(:name){ wrong_name }
-
-        it 'raises error' do
-          expect{ subject }.to raise_error PreJobNameError
-        end
-      end
-    end
-
     context 'when correct name' do
       it 'does not raise error' do
         expect{ subject }.not_to raise_error
@@ -42,16 +32,6 @@ RSpec.describe PreJob do
 
       it 'raises error' do
         expect{ subject }.to raise_error PreJobDepError
-      end
-    end
-
-    context 'when dependency name is not correct' do
-      %w(A я 1 + .).each do |wrong_name|
-        let(:dep_name){ wrong_name }
-
-        it 'raises error' do
-          expect{ subject }.to raise_error PreJobNameError
-        end
       end
     end
 

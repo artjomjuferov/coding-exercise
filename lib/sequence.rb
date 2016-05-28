@@ -10,6 +10,7 @@ class Sequence
     @jobs.each_with_index do |job, ind|
       # if job has ticket it was visited
       next if job.ticket
+      # multiplication to avoid ticket collision
       sort_dfs job, ind*@jobs.size
     end
     # now every job has their own right ticket
@@ -66,6 +67,6 @@ end
 
 class CircularDepError < StandardError
   def initialize
-    super "There is circular dependencies"
+    super "ERROR: there is circular dependencies"
   end
 end

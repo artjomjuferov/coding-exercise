@@ -12,9 +12,5 @@ class Job
   def dep_jobs= job
     @dep_jobs << job
   end
-
-  def to_s
-    @name
-  end
 end
 

@@ -12,7 +12,8 @@ RSpec.describe Parser do
     subject { Parser.new(file_data).pre_jobs }
 
     context 'when invalid data' do
-      ['ab=>b', 'a==>b', 'a+b', 'a=>>b'].each do |line|
+
+      ['ab=>b', 'a==>b', 'a+b', 'a=>>b', '1=>a', 'a=>1', 'A=>a'].each do |line|
         let(:file_data) { line }
 
         it 'raises error' do
